@@ -3,18 +3,39 @@ import gradio as gr
 import json
 import os
 
-# Use a free, non-gated model by default so Hugging Face Spaces can build without auth errors.
-model_id = os.getenv("MODEL_ID", "google/flan-t5-base")
+# Use open models by default so Spaces starts without auth tokens.
+requested_model_id = os.getenv("MODEL_ID", "google/flan-t5-base")
+fallback_model_ids = [
+    requested_model_id,
+    "google/flan-t5-base",
+    "google/flan-t5-small",
+]
 
-print(f"Loading model: {model_id}")
+pipe = None
+loaded_model_id = None
+last_error = None
 
-pipe = pipeline(
-    "text2text-generation",
-    model=model_id,
-    device_map="auto"
-)
+for candidate in fallback_model_ids:
+    try:
+        print(f"Loading model: {candidate}")
+        pipe = pipeline(
+            "text2text-generation",
+            model=candidate,
+            device_map="auto",
+        )
+        loaded_model_id = candidate
+        break
+    except Exception as err:
+        last_error = err
+        print(f"Model load failed for {candidate}: {err}")
 
-print("✅ Model loaded successfully")
+if pipe is None:
+    raise RuntimeError(
+        "Unable to load any supported model. "
+        f"Last error: {last_error}"
+    )
+
+print(f"Model loaded successfully: {loaded_model_id}")
 
 
 # 🔹 Prediction function
