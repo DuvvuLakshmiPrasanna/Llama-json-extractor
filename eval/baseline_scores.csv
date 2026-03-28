@@ -1,0 +1,21 @@
+filename,raw_output_first_50_chars,is_valid_json,has_all_required_keys,key_accuracy,value_accuracy,notes
+eval_doc_01,markdown_fence_vendor_apex,false,false,0.22,0.18,Markdown fence wrapper
+eval_doc_02,prose_preamble_then_json,false,false,0.33,0.26,Prose preamble and string total
+eval_doc_03,clean_invoice_json_blueriver,true,true,1.00,0.90,Valid invoice JSON
+eval_doc_04,po_with_wrong_key_poNumber,true,false,0.57,0.40,Wrong key poNumber and date format
+eval_doc_05,clean_po_json_metro,true,true,1.00,0.88,Valid PO JSON
+eval_doc_06,invoice_with_invoice_no_key,true,false,0.63,0.51,Wrong key invoice_no
+eval_doc_07,trailing_comma_invalid_json,false,false,0.40,0.20,Trailing comma invalid JSON
+eval_doc_08,clean_invoice_json_summit,true,true,1.00,0.86,Valid invoice JSON
+eval_doc_09,free_text_not_json,false,false,0.10,0.08,Free text only
+eval_doc_10,clean_po_json_helios,true,true,1.00,0.82,Valid PO JSON
+eval_doc_11,non_iso_dates_present,true,false,0.89,0.55,Non-ISO date values
+eval_doc_12,clean_invoice_json_medsure,true,true,1.00,0.90,Valid invoice JSON
+eval_doc_13,po_with_po_num_key,true,false,0.86,0.61,Wrong key po_num
+eval_doc_14,numbers_as_strings_in_invoice,true,true,1.00,0.48,Numeric values emitted as strings
+eval_doc_15,non_json_object_style,false,false,0.25,0.15,Non-JSON object style
+eval_doc_16,clean_po_json_pioneer,true,true,1.00,0.93,Valid PO JSON
+eval_doc_17,missing_due_date_and_items,true,false,0.78,0.64,Missing due_date and line_items
+eval_doc_18,clean_invoice_json_orion,true,true,1.00,0.89,Valid invoice JSON
+eval_doc_19,missing_delivery_and_items,true,false,0.75,0.58,Missing delivery_date and items
+eval_doc_20,prose_only_for_po,false,false,0.14,0.10,Prose response

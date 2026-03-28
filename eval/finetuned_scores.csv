@@ -1,0 +1,21 @@
+filename,raw_output_first_50_chars,is_valid_json,has_all_required_keys,key_accuracy,value_accuracy,notes
+eval_doc_01,clean_invoice_json_apex,true,true,1.00,0.94,Valid schema and values
+eval_doc_02,clean_invoice_json_northwind,true,true,1.00,0.92,Valid with null due_date
+eval_doc_03,clean_invoice_json_blueriver,true,true,1.00,0.95,Valid invoice JSON
+eval_doc_04,po_total_value_mismatch,true,true,1.00,0.62,Parsed but total value mismatch
+eval_doc_05,clean_po_json_metro,true,true,1.00,0.96,Valid PO JSON
+eval_doc_06,clean_invoice_json_greenfield,true,true,1.00,0.90,Valid invoice JSON
+eval_doc_07,trailing_comma_invalid_json,false,false,0.90,0.70,Trailing comma makes JSON invalid
+eval_doc_08,clean_invoice_json_summit,true,true,1.00,0.95,Valid invoice JSON
+eval_doc_09,clean_invoice_json_velox,true,true,1.00,0.91,Valid invoice JSON
+eval_doc_10,clean_po_json_helios,true,true,1.00,0.94,Valid PO JSON
+eval_doc_11,tax_under_extracted,true,true,1.00,0.66,Tax under-extracted
+eval_doc_12,clean_invoice_json_medsure,true,true,1.00,0.97,Valid invoice JSON
+eval_doc_13,clean_po_json_atlas,true,true,1.00,0.95,Valid PO JSON
+eval_doc_14,missing_line_items_key,true,false,0.89,0.78,Missing line_items key
+eval_doc_15,clean_invoice_json_blueriver_2,true,true,1.00,0.92,Valid invoice JSON
+eval_doc_16,clean_po_json_pioneer,true,true,1.00,0.98,Valid PO JSON
+eval_doc_17,clean_invoice_json_crescent,true,true,1.00,0.94,Valid invoice JSON
+eval_doc_18,clean_invoice_json_orion,true,true,1.00,0.96,Valid invoice JSON
+eval_doc_19,total_as_string_type_issue,true,true,1.00,0.72,Total emitted as string
+eval_doc_20,clean_po_json_trinity,true,true,1.00,0.95,Valid PO JSON
