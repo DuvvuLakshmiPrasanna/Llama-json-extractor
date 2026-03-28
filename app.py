@@ -1,19 +1,16 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import pipeline
 import gradio as gr
-import torch
 import json
 import os
 
-# 🔹 Load model
-# Update this path to your model folder
-model_path = os.getenv("MODEL_PATH", "./model")
+# Use a free, non-gated model by default so Hugging Face Spaces can build without auth errors.
+model_id = os.getenv("MODEL_ID", "google/flan-t5-base")
 
-print(f"Loading model from: {model_path}")
+print(f"Loading model: {model_id}")
 
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path,
-    torch_dtype=torch.float16,
+pipe = pipeline(
+    "text2text-generation",
+    model=model_id,
     device_map="auto"
 )
 
@@ -34,16 +31,14 @@ Invoice text:
 
 Return valid JSON only:"""
 
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-
-    outputs = model.generate(
-        **inputs,
+    outputs = pipe(
+        prompt,
         max_new_tokens=300,
         temperature=0.1,
         top_p=0.9,
     )
 
-    result = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    result = outputs[0]["generated_text"]
 
     # 🔹 Try to clean and parse JSON
     try:
@@ -75,7 +70,7 @@ interface = gr.Interface(
         lines=15,
         label="Extracted JSON"
     ),
-    title="🧾 Invoice JSON Extractor (Llama 3.2)",
+    title="🧾 Invoice JSON Extractor",
     description="Paste unstructured invoice text → Get structured JSON output",
     examples=[
         ["Vendor: Amazon\nDate: 2024-03-10\nTotal: 2500 INR\nItems: Server charges"],
