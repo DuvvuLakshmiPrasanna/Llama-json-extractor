@@ -35,14 +35,15 @@ This project demonstrates **state-of-the-art structured output optimization** th
 
 ### Key Achievements
 
-| Metric | Baseline | Fine-tuned | Improvement |
-|--------|----------|-----------|-------------|
-| **JSON Parse Success Rate** | 40.0% | 90.0% | **+125%** |
-| **Valid Field Extraction** | 65.2% | 94.8% | **+45.3%** |
-| **Format Compliance** | 52.1% | 96.3% | **+84.9%** |
-| **Evaluation Samples** | 20 documents | 20 documents | Same test set |
+| Metric                      | Baseline     | Fine-tuned   | Improvement   |
+| --------------------------- | ------------ | ------------ | ------------- |
+| **JSON Parse Success Rate** | 40.0%        | 90.0%        | **+125%**     |
+| **Valid Field Extraction**  | 65.2%        | 94.8%        | **+45.3%**    |
+| **Format Compliance**       | 52.1%        | 96.3%        | **+84.9%**    |
+| **Evaluation Samples**      | 20 documents | 20 documents | Same test set |
 
 ### Technologies Used
+
 - **Base Model**: Llama 3.2 (7B parameters)
 - **Fine-tuning**: LoRA (Low-Rank Adaptation)
 - **Framework**: LlamaFactory + Hugging Face Transformers
@@ -57,11 +58,13 @@ This project demonstrates **state-of-the-art structured output optimization** th
 **Maximize structured output reliability for business document processing.**
 
 ### Problem Statement
+
 - Unstructured invoices and purchase orders lack machine-parseable format
 - Off-the-shelf LLMs frequently generate malformed JSON (missing fields, markdown wrappers, syntax errors)
 - Existing systems struggle with domain-specific terminology and complex layouts
 
 ### Solution Approach
+
 1. Create domain-specific training data with consistent JSON schemas
 2. Fine-tune Llama 3.2 model on curated examples using LoRA
 3. Implement production-ready inference interface
@@ -69,6 +72,7 @@ This project demonstrates **state-of-the-art structured output optimization** th
 5. Provide comprehensive evaluation and failure analysis
 
 ### Success Criteria ✅
+
 - ✅ Achieve >85% JSON parse success rate (target met: 90%)
 - ✅ Reduce parse errors by >50% from baseline
 - ✅ Implement production deployment
@@ -98,11 +102,12 @@ open http://127.0.0.1:7860
 ```
 
 ### 2. Test Input
+
 ```
 Vendor: Acme Corporation
 Invoice Date: March 15, 2024
 Order ID: ORD-2024-001
-Items: 
+Items:
   - Software licenses (qty: 3 @ $500 each)
   - Support (annual)
 Subtotal: $1,500
@@ -112,6 +117,7 @@ Payment Terms: Net 30
 ```
 
 ### 3. Expected Output
+
 ```json
 {
   "vendor": "Acme Corporation",
@@ -137,6 +143,7 @@ Payment Terms: Net 30
 ```
 
 ### 4. Deploy Online
+
 See [Deployment](#deployment) section or follow [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
@@ -208,34 +215,38 @@ User Input (Unstructured Text)
 
 ### Dataset Overview
 
-| Metric | Value |
-|--------|-------|
-| **Total Training Examples** | 80 |
-| **Evaluation Samples** | 20 (held-out) |
-| **Data Format** | JSONL (JSON Lines) |
-| **Invoice Examples** | 45 |
-| **Purchase Order Examples** | 35 |
-| **Average Input Length** | 150-300 tokens |
-| **Average Output Length** | 100-200 tokens |
+| Metric                      | Value              |
+| --------------------------- | ------------------ |
+| **Total Training Examples** | 80                 |
+| **Evaluation Samples**      | 20 (held-out)      |
+| **Data Format**             | JSONL (JSON Lines) |
+| **Invoice Examples**        | 45                 |
+| **Purchase Order Examples** | 35                 |
+| **Average Input Length**    | 150-300 tokens     |
+| **Average Output Length**   | 100-200 tokens     |
 
 ### Curation Methodology
 
 **Phase 1: Source Collection**
+
 - Gathered diverse invoice/PO examples from various industries
 - Included multiple document types (simple, complex, edge cases)
 - Captured different formatting styles and conventions
 
 **Phase 2: Schema Design**
+
 - Defined strict JSON schemas for invoices and purchase orders
 - Standardized field names and types
 - Included optional fields with proper null handling
 
 **Phase 3: Manual Annotation**
+
 - Each example manually converted to valid JSON format
 - Verified schema compliance before inclusion
 - Documented special cases and edge cases
 
 **Phase 4: Quality Assurance**
+
 - All 80 examples validated against respective schemas
 - Ensured diversity in industries, formats, and complexity
 - Documented curation decisions in [data/curation_log.md](data/curation_log.md)
@@ -243,6 +254,7 @@ User Input (Unstructured Text)
 ### Data Distribution
 
 **By Industry:**
+
 - Technology/SaaS: 25 examples
 - Manufacturing: 20 examples
 - Professional Services: 15 examples
@@ -250,6 +262,7 @@ User Input (Unstructured Text)
 - Other: 5 examples
 
 **By Complexity:**
+
 - Simple (single item): 25 examples
 - Medium (2-5 items): 35 examples
 - Complex (5+ items/calculations): 20 examples
@@ -263,6 +276,7 @@ See [data/curated_train.jsonl](data/curated_train.jsonl) for complete dataset.
 ### Model Specifications
 
 **Base Model: Meta-Llama-3.2 7B**
+
 - Architecture: Transformer (decoder-only)
 - Parameters: 7 billion (7B)
 - Context Window: 8,192 tokens
@@ -277,13 +291,13 @@ See [data/curated_train.jsonl](data/curated_train.jsonl) for complete dataset.
 ```yaml
 Model:
   base_model: meta-llama/Llama-2-7b-hf
-  
+
 LoRA Configuration:
-  r: 8                    # LoRA rank
-  lora_alpha: 16          # LoRA scaling factor
-  lora_dropout: 0.05      # Dropout rate
-  target_modules: ["q_proj", "v_proj"]  # Attention weight matrices
-  
+  r: 8 # LoRA rank
+  lora_alpha: 16 # LoRA scaling factor
+  lora_dropout: 0.05 # Dropout rate
+  target_modules: ["q_proj", "v_proj"] # Attention weight matrices
+
 Training:
   learning_rate: 5e-4
   num_train_epochs: 3
@@ -291,7 +305,7 @@ Training:
   gradient_accumulation_steps: 2
   max_source_length: 512
   max_target_length: 300
-  
+
 Optimization:
   optimizer: "adamw_torch"
   lr_scheduler: "linear"
@@ -324,6 +338,7 @@ Optimization:
 ### Training Curves
 
 **Loss Curve:**
+
 - Training: Started at 3.2 → Final 0.45
 - Validation: Started at 3.1 → Final 0.52
 - No significant overfitting observed
@@ -339,6 +354,7 @@ For detailed training visualization, see [screenshots/loss_curve.png](screenshot
 **Test Set**: 20 held-out documents (never seen during training)
 
 **Metrics Calculated:**
+
 1. **JSON Parse Success Rate**: % of valid JSON outputs
 2. **Field Extraction Accuracy**: % of correct field values
 3. **Format Compliance**: % of outputs matching schema
@@ -346,14 +362,15 @@ For detailed training visualization, see [screenshots/loss_curve.png](screenshot
 
 ### Baseline Performance (Pre-fine-tuning)
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| JSON Parse Success | 40.0% | Many formatting errors |
-| Valid Fields | 65.2% | Partial data extraction |
-| Format Compliance | 52.1% | Missing required fields |
-| Common Errors | Markdown wrappers, extra prose, syntax errors |
+| Metric             | Value                                         | Notes                   |
+| ------------------ | --------------------------------------------- | ----------------------- |
+| JSON Parse Success | 40.0%                                         | Many formatting errors  |
+| Valid Fields       | 65.2%                                         | Partial data extraction |
+| Format Compliance  | 52.1%                                         | Missing required fields |
+| Common Errors      | Markdown wrappers, extra prose, syntax errors |
 
 **Sample Baseline Failure:**
+
 ```
 Input: "Invoice #INV-001 from Acme, total $5,000"
 Output: """json {
@@ -365,14 +382,15 @@ Output: """json {
 
 ### Fine-tuned Performance (Post fine-tuning)
 
-| Metric | Value | Improvement |
-|--------|-------|-------------|
-| JSON Parse Success | **90.0%** | +50.0% |
-| Valid Fields | **94.8%** | +29.6% |
-| Format Compliance | **96.3%** | +44.2% |
-| Common Errors | Minimal (mostly edge cases) |
+| Metric             | Value                       | Improvement |
+| ------------------ | --------------------------- | ----------- |
+| JSON Parse Success | **90.0%**                   | +50.0%      |
+| Valid Fields       | **94.8%**                   | +29.6%      |
+| Format Compliance  | **96.3%**                   | +44.2%      |
+| Common Errors      | Minimal (mostly edge cases) |
 
 **Sample Fine-tuned Success:**
+
 ```json
 {
   "invoice_number": "INV-001",
@@ -385,16 +403,19 @@ Output: """json {
 ### Detailed Results
 
 **Baseline vs Fine-tuned Comparison:**
+
 - See [eval/baseline_scores.csv](eval/baseline_scores.csv)
 - See [eval/finetuned_scores.csv](eval/finetuned_scores.csv)
 - See [eval/before_vs_after.md](eval/before_vs_after.md)
 
 **Failure Analysis:**
+
 - 5 residual failures analyzed in detail
 - Each documented with root cause analysis
 - See [eval/failures/](eval/failures/) directory
 
 **Key Finding**: Fine-tuning eliminates **format-level errors entirely**
+
 - Baseline: 48% of failures were formatting (markdown, prose, syntax)
 - Fine-tuned: <1% formatting errors
 - Remaining errors are minor semantic issues in rare edge cases
@@ -402,6 +423,7 @@ Output: """json {
 ### Comparative Analysis
 
 **Prompt Engineering vs Fine-tuning:**
+
 - Strict prompting alone: 55% success rate (limited improvement)
 - Fine-tuning: 90% success rate (substantial improvement)
 - **Conclusion**: Fine-tuning essential for >85% reliability
@@ -480,7 +502,7 @@ def extract_json(text):
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     outputs = model.generate(**inputs, max_new_tokens=300, temperature=0.1)
     result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    
+
     # Parse JSON
     json_start = result.find("{")
     json_end = result.rfind("}") + 1
@@ -512,6 +534,7 @@ with open("output.jsonl", "w") as f:
 ### Model Configuration
 
 **In `app.py`:**
+
 ```python
 model_path = "./model"              # Model directory
 torch_dtype = torch.float16        # Data precision
@@ -524,6 +547,7 @@ top_p = 0.9                        # Nucleus sampling
 ### Environment Variables
 
 Create `.env` file:
+
 ```bash
 MODEL_PATH=./model
 GRADIO_SERVER_PORT=7860
@@ -542,18 +566,24 @@ For detailed configuration options, see `.env.example` and `training_config.md`
 ### Common Issues
 
 **Issue: Model not found**
+
 ```
 Error: No such file or directory: './model'
 ```
-**Solution**: 
+
+**Solution**:
+
 - Place merged model in `./model` folder
 - Ensure `config.json`, `pytorch_model.bin`, `tokenizer.json` present
 
 **Issue: Out of GPU memory**
+
 ```
 Error: CUDA out of memory
 ```
+
 **Solution**:
+
 ```python
 # Option 1: Use float32
 torch_dtype = torch.float32
@@ -566,19 +596,25 @@ device_map = "cpu"
 ```
 
 **Issue: Invalid JSON output**
+
 ```
 Error: JSONDecodeError
 ```
+
 **Solution**:
+
 - Increase `temperature` to 0.3 (more creative)
 - Try different prompts
 - Check model loading
 
 **Issue: Slow inference**
+
 ```
 Time per request: >10s
 ```
+
 **Solution**:
+
 - Ensure GPU is used (check `device_map="auto"`)
 - Verify CUDA is available
 - Use lighter model or quantization
@@ -653,23 +689,25 @@ llama-json-extractor/
 
 ### File Descriptions
 
-| File | Purpose |
-|------|---------|
-| `app.py` | Main Gradio application for inference |
-| `requirements.txt` | Python dependencies and versions |
-| `training_config.md` | Detailed LoRA training parameters |
-| `data/curated_train.jsonl` | 80 hand-curated training examples |
-| `eval/baseline_scores.csv` | Pre-fine-tuning evaluation metrics |
-| `eval/finetuned_scores.csv` | Post-fine-tuning evaluation metrics |
-| `schema/*.md` | JSON schema definitions |
-| `prompts/prompt_iterations.md` | Prompt engineering experiments |
+| File                           | Purpose                               |
+| ------------------------------ | ------------------------------------- |
+| `app.py`                       | Main Gradio application for inference |
+| `requirements.txt`             | Python dependencies and versions      |
+| `training_config.md`           | Detailed LoRA training parameters     |
+| `data/curated_train.jsonl`     | 80 hand-curated training examples     |
+| `eval/baseline_scores.csv`     | Pre-fine-tuning evaluation metrics    |
+| `eval/finetuned_scores.csv`    | Post-fine-tuning evaluation metrics   |
+| `schema/*.md`                  | JSON schema definitions               |
+| `prompts/prompt_iterations.md` | Prompt engineering experiments        |
 
 ---
 
 ## 💡 Key Findings & Insights
 
 ### Finding 1: Format Errors Dominate Initial Failures
+
 **Before fine-tuning**, 48% of errors were format-related:
+
 - Missing JSON braces or quotes
 - Markdown code fence wrappers
 - Extra explanatory prose mixed with JSON
@@ -680,6 +718,7 @@ llama-json-extractor/
 **Insight**: Fine-tuning teaches the model output format more effectively than prompt engineering alone.
 
 ### Finding 2: Domain-Specific Training Data is Essential
+
 - Generic prompting: ~55% success
 - With 80 curated examples: ~90% success
 - Highlights importance of domain adaptation
@@ -687,6 +726,7 @@ llama-json-extractor/
 **Insight**: Small, focused datasets outperform generic instructions.
 
 ### Finding 3: Temperature Sensitivity
+
 - Temperature 0.0 (greedy): More conservative, often incomplete
 - Temperature 0.1 (used): Optimal balance of accuracy and completeness
 - Temperature 0.5+: More divergent, less reliable JSON
@@ -694,6 +734,7 @@ llama-json-extractor/
 **Insight**: Fine-tuned models benefit from controlled sampling.
 
 ### Finding 4: LoRA vs Full Fine-tuning Trade-offs
+
 - LoRA: Faster, efficient, small adapter files (~50MB)
 - Full fine-tuning: Higher potential accuracy, larger model files
 - **Conclusion**: LoRA sufficient for 90% performance
@@ -758,22 +799,26 @@ llama-json-extractor/
 ## 📚 References & Resources
 
 ### Academic Papers
+
 - Hu et al. (2021) - "LoRA: Low-Rank Adaptation of Large Language Models"
 - Touvron et al. (2023) - "Llama 2: Open Foundation and Fine-Tuned Chat Models"
 - Wei et al. (2021) - "Finetuned Language Models are Zero-Shot Learners"
 
 ### Tools & Frameworks
+
 - [LlamaFactory](https://github.com/hiyouga/LlamaFactory) - Fine-tuning framework
 - [Transformers](https://huggingface.co/docs/transformers/) - Model library
 - [Gradio](https://gradio.app/) - Web interface framework
 - [Hugging Face Spaces](https://huggingface.co/spaces) - Deployment platform
 
 ### Related Projects
+
 - [LoRA GitHub](https://github.com/microsoft/LoRA)
 - [Meta Llama Models](https://llama.meta.com/)
 - [JSON Schema Specification](https://json-schema.org/)
 
 ### Learning Resources
+
 - [Hugging Face Course](https://huggingface.co/course)
 - [LLM Fine-tuning Guide](https://huggingface.co/docs/transformers/training)
 - [LoRA Explained](https://youtu.be/...)
@@ -783,6 +828,7 @@ llama-json-extractor/
 ## 🤝 Contributing
 
 Contributions welcome! Areas for improvement:
+
 - Additional test cases and edge cases
 - Enhanced error handling
 - Performance optimizations
