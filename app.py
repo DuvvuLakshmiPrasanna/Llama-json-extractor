@@ -14,21 +14,37 @@ fallback_model_ids = [
 
 pipe = None
 loaded_model_id = None
+loaded_task = None
 last_error = None
 
 for candidate in fallback_model_ids:
-    try:
-        print(f"Loading model: {candidate}")
-        pipe = pipeline(
-            "text2text-generation",
-            model=candidate,
-            device_map="auto",
-        )
-        loaded_model_id = candidate
+    print(f"Loading model: {candidate}")
+
+    # Try explicit tasks first, then fallback to automatic task inference.
+    pipeline_attempts = [
+        ("text2text-generation", {"model": candidate, "device_map": "auto"}),
+        ("text-generation", {"model": candidate, "device_map": "auto"}),
+        (None, {"model": candidate, "device_map": "auto"}),
+    ]
+
+    for task_name, kwargs in pipeline_attempts:
+        try:
+            if task_name is None:
+                pipe = pipeline(**kwargs)
+                loaded_task = "auto"
+            else:
+                pipe = pipeline(task_name, **kwargs)
+                loaded_task = task_name
+
+            loaded_model_id = candidate
+            break
+        except Exception as err:
+            last_error = err
+            attempt_name = task_name or "auto"
+            print(f"Pipeline init failed for model={candidate}, task={attempt_name}: {err}")
+
+    if pipe is not None:
         break
-    except Exception as err:
-        last_error = err
-        print(f"Model load failed for {candidate}: {err}")
 
 if pipe is None:
     raise RuntimeError(
@@ -36,7 +52,7 @@ if pipe is None:
         f"Last error: {last_error}"
     )
 
-print(f"Model loaded successfully: {loaded_model_id}")
+print(f"Model loaded successfully: {loaded_model_id} (task={loaded_task})")
 
 
 def _rule_based_extract(text):
