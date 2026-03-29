@@ -146,6 +146,8 @@ Payment Terms: Net 30
 
 See [Deployment](#deployment) section or follow [DEPLOYMENT.md](DEPLOYMENT.md)
 
+Render-specific guide: [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
+
 ---
 
 ## 🏗️ Technical Architecture

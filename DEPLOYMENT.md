@@ -4,6 +4,18 @@ Complete step-by-step guide to deploy your fine-tuned Llama 3.2 model with a web
 
 ---
 
+## Render Quick Deploy
+
+For stable hosted deployment on Render, follow [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+
+This repository already includes:
+
+- [render.yaml](render.yaml) for Blueprint deployment
+- [runtime.txt](runtime.txt) to pin Python version
+- Render-compatible startup in [app.py](app.py)
+
+---
+
 ## 📋 Prerequisites
 
 - ✅ Fine-tuned Llama 3.2 model (merged or with LoRA adapter)

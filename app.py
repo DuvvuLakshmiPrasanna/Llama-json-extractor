@@ -2,9 +2,10 @@ from transformers import pipeline
 import gradio as gr
 import json
 import os
+import re
 
-# Use open models by default so Spaces starts without auth tokens.
-requested_model_id = os.getenv("MODEL_ID", "google/flan-t5-base")
+# Use a lighter default model for low-memory hosting environments.
+requested_model_id = os.getenv("MODEL_ID", "google/flan-t5-small")
 fallback_model_ids = [
     requested_model_id,
     "google/flan-t5-base",
@@ -38,6 +39,43 @@ if pipe is None:
 print(f"Model loaded successfully: {loaded_model_id}")
 
 
+def _rule_based_extract(text):
+    """
+    Fallback parser for common invoice patterns when model output is not valid JSON.
+    """
+    data = {}
+
+    invoice_match = re.search(r"invoice\s*#?\s*([A-Za-z0-9\-_/]+)", text, re.IGNORECASE)
+    vendor_match = re.search(r"(?:from|vendor)\s*:\s*(.+)", text, re.IGNORECASE)
+    date_match = re.search(r"(?:date|invoice\s+date)\s*:\s*([^\n]+)", text, re.IGNORECASE)
+    due_match = re.search(r"due\s*:\s*([^\n]+)", text, re.IGNORECASE)
+    items_match = re.search(r"items?\s*:\s*([^\n]+)", text, re.IGNORECASE)
+
+    total_match = re.search(
+        r"(?:total|amount)\s*:\s*([A-Za-z$€£]*\s?[0-9][0-9,]*(?:\.[0-9]{1,2})?\s?[A-Za-z]*)",
+        text,
+        re.IGNORECASE,
+    )
+
+    if invoice_match:
+        data["invoice_number"] = invoice_match.group(1).strip()
+    if vendor_match:
+        data["vendor"] = vendor_match.group(1).strip()
+    if date_match:
+        data["date"] = date_match.group(1).strip()
+    if due_match:
+        data["due_date"] = due_match.group(1).strip()
+    if items_match:
+        data["items"] = [item.strip() for item in items_match.group(1).split(",") if item.strip()]
+    if total_match:
+        data["total_amount"] = total_match.group(1).strip()
+
+    if data:
+        data["extraction_mode"] = "rule_based_fallback"
+
+    return data
+
+
 # 🔹 Prediction function
 def extract_json(text):
     """
@@ -47,6 +85,16 @@ def extract_json(text):
     
     prompt = f"""Extract invoice data and return ONLY valid JSON. Do not include explanation, markdown, or extra text.
 
+Use this JSON structure exactly (include keys even if null):
+{{
+  "invoice_number": null,
+  "vendor": null,
+  "date": null,
+  "due_date": null,
+  "total_amount": null,
+  "items": []
+}}
+
 Invoice text:
 {text}
 
@@ -54,9 +102,8 @@ Return valid JSON only:"""
 
     outputs = pipe(
         prompt,
-        max_new_tokens=300,
-        temperature=0.1,
-        top_p=0.9,
+        max_new_tokens=220,
+        do_sample=False,
     )
 
     result = outputs[0]["generated_text"]
@@ -67,6 +114,9 @@ Return valid JSON only:"""
         json_end = result.rfind("}") + 1
         
         if json_start == -1 or json_end == 0:
+            fallback = _rule_based_extract(text)
+            if fallback:
+                return json.dumps(fallback, indent=2)
             return "⚠️ No JSON found in response:\n\n" + result
         
         json_str = result[json_start:json_end]
@@ -74,6 +124,9 @@ Return valid JSON only:"""
         return json.dumps(parsed, indent=2)
     
     except json.JSONDecodeError as e:
+        fallback = _rule_based_extract(text)
+        if fallback:
+            return json.dumps(fallback, indent=2)
         return f"⚠️ Invalid JSON generated (parse error: {str(e)}):\n\n{result}"
     except Exception as e:
         return f"⚠️ Error processing response: {str(e)}\n\n{result}"
@@ -100,4 +153,17 @@ interface = gr.Interface(
 )
 
 if __name__ == "__main__":
-    interface.launch(share=False)
+    share = os.getenv("GRADIO_SHARE", "false").lower() in {"1", "true", "yes"}
+    server_port = int(os.getenv("PORT", "7860"))
+    try:
+        interface.launch(
+            server_name="0.0.0.0",
+            server_port=server_port,
+            share=share,
+        )
+    except ValueError:
+        interface.launch(
+            server_name="0.0.0.0",
+            server_port=server_port,
+            share=True,
+        )

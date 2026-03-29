@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: llama-json-extractor
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    autoDeploy: true
+    envVars:
+      - key: MODEL_ID
+        value: google/flan-t5-small
+      - key: GRADIO_SHARE
+        value: false
